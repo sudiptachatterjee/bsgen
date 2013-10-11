@@ -10,5 +10,3 @@ def sc(wordlist):
     return strip(choice(wordlist))
 
 print ' '.join([choice(adv), choice(verbs), choice(adj), choice(nouns)])
-
-
