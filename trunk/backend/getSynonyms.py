@@ -87,4 +87,4 @@ def getText(nodelist):
     return ''.join(rc)
 
 if __name__ == "__main__":
-    print findSynonym("live","VB")
+    print findSynonym("music","JJ")
