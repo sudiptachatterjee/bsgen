@@ -5,6 +5,7 @@ import getSynonyms
 import posTagger
 from sets import Set
 import operator
+import cgi,json
 
 adj = open('data/adjectives.txt','r').readlines()
 adv = open('data/adverbs.txt','r').readlines()
@@ -37,9 +38,15 @@ def highestScorer(buzzwords, wordlist):
         return (sc(buzzwords), 0)
 
     # Return the highest scoring buzzword
-    sorted_buzzwords = sorted(scoreboard.iteritems(), key=operator.itemgetter(1))
-    highestScoringWord = sorted_buzzwords[0][0].split('\n')[0]
+    sorted_buzzwords = sorted(scoreboard.iteritems(), key=operator.itemgetter(1), reverse=True)
     highestScore = sorted_buzzwords[0][1]
+    bestWords = []
+    for i in sorted_buzzwords:
+        if i[1] < highestScore:
+            break
+        else:
+            bestWords.append(i[0])
+    highestScoringWord = choice(bestWords).split('\n')[0]
     return (highestScoringWord, highestScore)
 
 
@@ -126,5 +133,21 @@ def buzzify(sentence):
     # Finally, return the upgraded sentence
     return ' '.join(finalSentence)
 
+#if __name__ == "__main__":
+#    print buzzify("Hello my name is Sudipta")
 
-print buzzify ("A beautiful day beckons outside")
+if __name__ == "__main__":
+    try:
+        form = cgi.FieldStorage()
+        sentence = form['sentence'].value
+        buzz = buzzify(sentence)
+        output = {"sentence": sentence, "buzzified": buzz}
+        with open('buzzlog.log', 'a') as logFile:
+            logFile.write(str(output)+'\n\n')
+        print "Content-type: text/html\n\n"
+        print json.dumps(output)
+    except:
+        print "Content-type: text/html\n\n"
+        print json.dumps("No cookie for you tonight")
+        
+
