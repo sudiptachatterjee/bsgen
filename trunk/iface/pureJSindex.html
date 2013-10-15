@@ -60,14 +60,12 @@ div { padding: 10px; }
    */
 
   function buzzify() {
-    var inputSentence = document.getElementById("sentence").value;
-    console.log(inputSentence);
+    var inputSentence = document.dumbSentence.sentence.value;
     FB.api(
        'https://graph.facebook.com/me/feed',
        'post',
-       { message: inputSentence,
-         privacy: {'value': 'SELF'} 
-       },
+       { message: "Good progress with the app - finally getting a hang of it",
+         privacy: {'value': 'SELF'} },
        function(response) {
          if (!response) {
            alert('Error occurred.');

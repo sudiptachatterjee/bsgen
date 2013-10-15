@@ -19,7 +19,7 @@
 
         $("#buzzify").on('click', function(e) {
           e.preventDefault();
-          var inputSentence = $("#sentence").text();
+          var inputSentence = $("#sentence").val();
           $.post("cgi-bin/buzzgen.py",{sentence:inputSentence})
            .done(function(data) {
                buzzifiedSentence = data["buzzified"];
@@ -50,6 +50,7 @@
     </script>
   </head>
   <body>
+    <div id="fb-root"></div>
     <!--
       Login Button - https://developers.facebook.com/docs/reference/plugins/login
     
