@@ -2,11 +2,9 @@
 <html>
 <head>
 <title>Buzzword Translator</title>
-<style type="text/css">
-div { padding: 10px; }
-</style>
+<link rel="stylesheet" type="text/css" href="buzzStyle.css" />
 <meta charset="UTF-8">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
 </head>
 <body>
@@ -61,8 +59,10 @@ div { padding: 10px; }
 
 
     var response = "";
+    $("body").addClass("loading");
     $.post('cgi-bin/buzzgen.py', {"sentence":sentence})
      .done(function(res) {
+         $("body").removeClass("loading");
          console.log(res);
          response = $.parseJSON(res)["buzzified"];
          var buzzwordSentence = 'Management speak: say "'+response+'" instead of "'+sentence+'"';
@@ -125,6 +125,7 @@ Convert your status update into a (privately visible) management speak:
 
 
 <div id="result"></div>
+<div class="modal"><!-- Place at bottom of page --></div>
 
 </body>
 </html>
