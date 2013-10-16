@@ -22,6 +22,7 @@ div { padding: 10px; }
   window.fbAsyncInit = function() {
     FB.init({
       appId      : fbAppId,        // App ID
+      channelUrl : '//50.112.124.141/~bsgen/',
       status     : true,           // check login status
       cookie     : true,           // enable cookies to allow the server to access the session
       xfbml      : true            // parse page for xfbml or html5 social plugins like login button below
@@ -39,55 +40,55 @@ div { padding: 10px; }
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
 
-  /*
-   * This function makes a call to the og.likes API.  The object argument is
-   * the object you like.  Other types of APIs may take other arguments.
-   * (i.e. the book.reads API takes a book= argument.)
-   *
-   * Because it's a sample, it also sets the privacy parameter so that it will
-   * create a story that only you can see.  Remove the privacy parameter and
-   * the story will be visible to whatever the default privacy was when you
-   * added the app.
-   *
-   * Also note that you can view any story with the id, as demonstrated with
-   * the code below.
-   *
-   * APIs used in buzzify():
-   * Call the Graph API from JS:
-   *   https://developers.facebook.com/docs/reference/javascript/FB.api
-   * The Open Graph og.likes API:
-   *   https://developers.facebook.com/docs/reference/opengraph/action-type/og.likes
-   * Privacy argument:
-   *   https://developers.facebook.com/docs/reference/api/privacy-parameter
-   */
-
   function getBuzzified(sentence) {
-      var response = "";
-      $.post('cgi-bin/buzzgen.py', {"sentence":sentence})
-       .done(function(res) {
-           console.log(res);
-           response = $.parseJSON(res)["buzzified"];
-           var buzzwordSentence = 'Management speak: say "'+response+'" instead of "'+sentence+'"';
-           FB.api(
-              'https://graph.facebook.com/me/feed',
-              'post',
-              { message: buzzwordSentence,
-                privacy: {'value': 'SELF'} 
-              },
-              function(response) {
-                if (!response) {
-                  alert('Error occurred.');
-                } else if (response.error) {
-                  document.getElementById('result').innerHTML = 'Error: ' + response.error.message;
-                } else {
-                  document.getElementById('result').innerHTML =
-                    '<a href=\"https://www.facebook.com/me/activity/' + response.id + '\">' +
-                    'Story created.  ID is ' + response.id + '</a>';
-                }
+    var userId = "";
+    var accessToken = "";
+
+    // First, let's make sure the user is logged in
+    FB.getAuthResponse(function(authResponse) {
+        if (authResponse.status === 'connected') {
+            userId = authResponse.userID;
+            accessToken = authResponse.accessToken;
+            console.log("User id: "+ userId);
+            console.log("Access token: "+ accessToken);
+        } else {
+            // Ask the user to login and authorize
+            console.log("User not authorized");
+        }
+    });
+
+
+
+
+    var response = "";
+    $.post('cgi-bin/buzzgen.py', {"sentence":sentence})
+     .done(function(res) {
+         console.log(res);
+         response = $.parseJSON(res)["buzzified"];
+         var buzzwordSentence = 'Management speak: say "'+response+'" instead of "'+sentence+'"';
+         FB.api(
+            'https://graph.facebook.com/me/feed',
+            'post',
+            { "message": buzzwordSentence,
+              "privacy": {'value': 'SELF'},
+              "accessToken": accessToken
+            },
+            function(response) {
+              if (!response) {
+                alert('Error occurred.');
+              } else if (response.error) {
+                $("#result").html('Error: ' + response.error.message);
+              } else {
+                var buzzwordUpdate = 
+                  'Congratulations, you just posted management buzzwords on: ' +
+                  '<a href=\"https://www.facebook.com/me/activity/' + response.id + '\">' +
+                  'your timeline</a>. Go share it with friends if you like!';
+                $("#result").html(buzzwordUpdate);
               }
-           );
-       });
-       return response;
+            }
+         );
+     });
+     return response;
   }
 
   function buzzify() {
@@ -115,7 +116,7 @@ div { padding: 10px; }
 </div>
 
 <div>
-Sample buzzification of posts
+Convert your status update into a (privately visible) management speak:
 <form id="dumbSentence">
     <input type="text" id="sentence">
     <input type="button" value="Generate a holistic status update" onclick="buzzify();">
