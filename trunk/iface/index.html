@@ -39,26 +39,8 @@
    }(document, 'script', 'facebook-jssdk'));
 
   function getBuzzified(sentence) {
-    var userId = "";
-    var accessToken = "";
-
-    // First, let's make sure the user is logged in
-    FB.getAuthResponse(function(authResponse) {
-        if (authResponse.status === 'connected') {
-            userId = authResponse.userID;
-            accessToken = authResponse.accessToken;
-            console.log("User id: "+ userId);
-            console.log("Access token: "+ accessToken);
-        } else {
-            // Ask the user to login and authorize
-            console.log("User not authorized");
-        }
-    });
-
-
-
-
     var response = "";
+    var toReturn = "";
     $("body").addClass("loading");
     $.post('cgi-bin/buzzgen.py', {"sentence":sentence})
      .done(function(res) {
@@ -66,29 +48,36 @@
          console.log(res);
          response = $.parseJSON(res)["buzzified"];
          var buzzwordSentence = 'Management speak: say "'+response+'" instead of "'+sentence+'"';
-         FB.api(
-            'https://graph.facebook.com/me/feed',
-            'post',
-            { "message": buzzwordSentence,
-              "privacy": {'value': 'SELF'},
-              "accessToken": accessToken
-            },
-            function(response) {
-              if (!response) {
-                alert('Error occurred.');
-              } else if (response.error) {
-                $("#result").html('Error: ' + response.error.message);
-              } else {
-                var buzzwordUpdate = 
-                  'Congratulations, you just posted management buzzwords on: ' +
-                  '<a href=\"https://www.facebook.com/me/activity/' + response.id + '\">' +
-                  'your timeline</a>. Go share it with friends if you like!';
-                $("#result").html(buzzwordUpdate);
-              }
-            }
-         );
+         toReturn = buzzwordSentence;
+
+        // First, let's make sure the user is logged in
+        FB.login(function(loginRes) {
+            var accToken = loginRes.authResponse.accessToken;
+            FB.api(
+                'https://graph.facebook.com/me/feed',
+                'post',
+                { "message": buzzwordSentence,
+                  "privacy": {'value': 'SELF'},
+                  "accessToken": accToken
+                },
+                function(response) {
+                  if (!response) {
+                    alert('Error occurred.');
+                  } else if (response.error) {
+                    $("#result").html('Error: ' + response.error.message);
+                  } else {
+                    var buzzwordUpdate = 
+                      'Congratulations, you just posted management buzzwords on: ' +
+                      '<a href=\"https://www.facebook.com/me/activity/' + response.id + '\">' +
+                      'your timeline</a>. Go share it with friends if you like!';
+                    $("#result").html(buzzwordUpdate);
+                  }
+                }
+             );
+        }, {scope:"publish_actions"});
+
      });
-     return response;
+     return toReturn;
   }
 
   function buzzify() {

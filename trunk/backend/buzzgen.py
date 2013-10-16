@@ -58,12 +58,14 @@ def pickABuzzword(synonyms, related, tense):
     buzzwords = []
     if tense == 'JJ':
         buzzwords = adj
-    if tense == 'RB':
+    elif tense == 'RB':
         buzzwords = adv
-    if tense == 'NN':
+    elif tense == 'NN':
         buzzwords = nouns
-    if tense == 'VB':
+    elif tense == 'VB':
         buzzwords = verbs
+    else:
+        buzzwords = nouns #Making sure the list is never empty
 
     # First preference is to find a word in the buzzwordlist
     # as close to any of the synonyms as possible
@@ -118,6 +120,7 @@ def buzzify(sentence):
             continue
 
         # Send the entire set of synonyms and related + tense to get a buzzword
+        tense = tense[:2]
         buzzword = pickABuzzword(synonyms, related, tense)
 
         # If this was a noun without an adjective before,
@@ -136,7 +139,7 @@ def buzzify(sentence):
     return ' '.join(finalSentence)
 
 #if __name__ == "__main__":
-#    print buzzify("Hello my name is Sudipta")
+#    print buzzify("How do I bring this information")
 
 if __name__ == "__main__":
     try:
