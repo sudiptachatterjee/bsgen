@@ -6,6 +6,7 @@
 div { padding: 10px; }
 </style>
 <meta charset="UTF-8">
+
 </head>
 <body>
 <div id="fb-root"></div>
@@ -60,12 +61,29 @@ div { padding: 10px; }
    */
 
   function buzzify() {
-    var inputSentence = document.dumbSentence.sentence.value;
+    var inputSentence = document.getElementById("sentence").value;
+    var jsonRequest = JSON.stringify({"sentence":inputSentence});
+    console.log(jsonRequest);
+
+    // Create an ajax request and obtain the buzzified sentence from the backed
+    var jsonhttp, jsonResponse;
+    if (window.XMLHttpRequest) {
+      jsonhttp=new XMLHttpRequest();
+    } else {// code for IE6, IE5
+      jsonhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    jsonhttp.open("POST", "cgi-bin/buzzgen.py", true);
+    jsonhttp.setRequestHeader("Content-type","text/plain");
+    jsonhttp.send(jsonRequest);
+    jsonResponse = jsonhttp.responseText;
+    console.log(jsonResponse);
+
     FB.api(
        'https://graph.facebook.com/me/feed',
        'post',
-       { message: "Good progress with the app - finally getting a hang of it",
-         privacy: {'value': 'SELF'} },
+       { message: inputSentence,
+         privacy: {'value': 'SELF'} 
+       },
        function(response) {
          if (!response) {
            alert('Error occurred.');

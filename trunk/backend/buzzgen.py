@@ -81,6 +81,8 @@ def pickABuzzword(synonyms, related, tense):
 def buzzify(sentence):
     # Given a sentence, first find all the part of speech tags of words
     wordsWithStems = posTagger.getWordsWithStems (sentence) # w t s = (word,tense,stem)
+    with open('buzzlog.log', 'a') as logFile:
+        logFile.write(str(wordsWithStems)+'\n\n')
     sentSynonyms = []
     for wts in wordsWithStems:
         tagOfInterest = wts[1][:2]
@@ -140,6 +142,8 @@ if __name__ == "__main__":
     try:
         form = cgi.FieldStorage()
         sentence = form['sentence'].value
+        with open('buzzlog.log', 'a') as logFile:
+            logFile.write(str(sentence)+'\n\n')
         buzz = buzzify(sentence)
         output = {"sentence": sentence, "buzzified": buzz}
         with open('buzzlog.log', 'a') as logFile:
